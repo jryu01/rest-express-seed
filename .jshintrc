@@ -1,0 +1,18 @@
+{
+  "strict": true,
+  "curly": true,
+  "eqeqeq": true,
+  "undef": true,
+  "unused": "vars",
+
+  "node": true,
+  "globals": {
+    "sinon": false,
+    "it": false,
+    "describe": false,
+    "before": false,
+    "after": false,
+    "beforeEach": false,
+    "afterEach": false,
+  }
+}
