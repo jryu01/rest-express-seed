@@ -1,12 +1,11 @@
 REPORTER = spec
-TESTS = $(shell find test/ '*.js')
 
 test:
-	@NODE_ENV=test ./node_modules/.bin/mocha $(TESTS) \
+	@NODE_ENV=test ./node_modules/.bin/mocha \
 	--reporter $(REPORTER)
 
 test-w:
-	@NODE_ENV=test ./node_modules/.bin/mocha $(TESTS) \
+	@NODE_ENV=test ./node_modules/.bin/mocha \
 	--reporter $(REPORTER) \
 	--growl \
 	--watch

@@ -1,0 +1,13 @@
+#!/usr/bin/env node
+var mongoose = require('mongoose');
+var config = require('../config');
+var app = require('../app');
+
+app.set('port', config.port);
+
+// connect db
+mongoose.connect(config.mongo.url);
+
+// start listening for requests
+app.listen(app.get('port'));
+console.log(config.app.name + ' listening on port ' + app.get('port') + ' for ' + config.env);
