@@ -39,16 +39,48 @@ describe('User route', function () {
 
   });
 
-  // describe('with GET reqeust', function () {
+  describe('with GET reqeust', function () {
 
-  //   beforeEach(function (done) {
-  //     request.post('/api/users').send({ name: 'Peter'}).expect(200, done);
-  //   });
+    var peter, bob;
 
-  //   it('should retrievs array of users', function (done) {
-  //     request.post('/api/users')
-  //   });
-  // });
+    before(function (done) {
+      request.post('/api/users').send({ name: 'Peter'})
+        .expect(200, function (err, res) {
+        peter = res.body;
+        request.post('/api/users').send({ name: 'Bob'})
+          .expect(200, function (err, res) {
+          bob = res.body;
+          request.post('/api/users').send({ name: 'Sandy'}).expect(200, done);
+        });
+      });
+    });
+
+    it('should retreive array of users', function (done) {
+      request.get('/api/users')
+        .expect('Content-Type', /json/)
+        .expect(200)
+        .end(function (err, res) {
+          if (err) { done(err); }
+          expect(res.body).to.be.an('array').that.has.length.above(2);
+          expect(JSON.stringify(res.body)).to.match(/Peter/);
+          expect(JSON.stringify(res.body)).to.match(/Bob/);
+          expect(JSON.stringify(res.body)).to.match(/Sandy/);
+          done();
+        });
+    });
+
+    it('should retreive a specific user with id', function (done) {
+      request.get('/api/users/' + peter.id)
+        .expect('Content-Type', /json/)
+        .expect(200)
+        .end(function (err, res) {
+          if (err) { done(err); }
+          expect(res.body).to.have.property('id', peter.id);
+          expect(res.body).to.have.property('name', peter.name);
+          done();
+        });
+    });
+  });
 
   after(function(done){
     mongoose.connection.db.dropDatabase(function(){
