@@ -4,7 +4,8 @@
   "description": "REST API seed project with node.js and express.js",
   "main": "server.js",
   "scripts": {
-    "test": "make test"
+    "test": "make test",
+    "start": "./bin/www"
   },
   "repository": {
     "type": "git",
