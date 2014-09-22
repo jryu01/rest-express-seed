@@ -4,6 +4,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
  
 var UserSchema = new Schema({
+  email: { type: String, required: '{PATH} is required!' },
   name: { type: String, required: '{PATH} is required!' }
 });
 

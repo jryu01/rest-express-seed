@@ -7,6 +7,13 @@ var request = require('supertest');
 var expect = require('chai').expect;
 var config = require('../config');
 var app = require('../app');
+var _ = require('lodash');
+
+var createUser = function (overwrites) {
+  var defaults= { name: 'Jhon', email: 'example@example.com' };
+
+  return _.extend(defaults, overwrites);
+};
 
 describe('User route', function () {
 
@@ -19,22 +26,34 @@ describe('User route', function () {
   describe('with POST request', function () {
 
     it('should save a user to db and return it', function (done) {
-      request.post('/api/users').send({ name: 'Jhon' })
+      request.post('/api/users').send(createUser())
       .expect('Content-Type', /json/)
       .expect(200)
       .end(function (err, res) {
         if (err) { done(err); }
         expect(res.body).to.have.property('id');
         expect(res.body).to.have.property('name', 'Jhon');
+        expect(res.body).to.have.property('email', 'example@example.com');
         done();
       });
     });
 
     it('should respond with 400 error when name is missing', function (done) {
-      request.post('/api/users').send({})
+      var user = createUser();
+      delete user.name;
+      request.post('/api/users').send(user)
       .expect('Content-Type', /json/)
       .expect(400)
       .expect(/name is required!/, done);
+    });
+
+    it('should respond with 400 error when email is missing', function (done) {
+      var user = createUser();
+      delete user.email;
+      request.post('/api/users').send(user)
+      .expect('Content-Type', /json/)
+      .expect(400)
+      .expect(/email is required!/, done);
     });
 
   });
@@ -44,13 +63,13 @@ describe('User route', function () {
     var peter, bob;
 
     before(function (done) {
-      request.post('/api/users').send({ name: 'Peter'})
+      request.post('/api/users').send(createUser({ name: 'Peter' }))
         .expect(200, function (err, res) {
         peter = res.body;
-        request.post('/api/users').send({ name: 'Bob'})
+        request.post('/api/users').send(createUser({ name: 'Bob' }))
           .expect(200, function (err, res) {
           bob = res.body;
-          request.post('/api/users').send({ name: 'Sandy'}).expect(200, done);
+          request.post('/api/users').send(createUser({ name: 'Sandy' })).expect(200, done);
         });
       });
     });
