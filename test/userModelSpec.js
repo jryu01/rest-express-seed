@@ -4,7 +4,7 @@ var expect = require('chai').expect;
 var User = require('../models/user');
 
 
-describe('User', function () {
+describe('User model', function () {
 
   var user;
 
@@ -20,8 +20,8 @@ describe('User', function () {
 
   it('should have .toJSON to get clean json', function () {
     user = new User({ name: 'Sam' });
-    expect(user.toJSON()).to.not.have.property('_id');
     expect(user.toJSON()).to.have.property('id');
+    expect(user.toJSON()).to.not.have.property('_id');
     expect(user.toJSON()).to.not.have.property('__V');
   });
 

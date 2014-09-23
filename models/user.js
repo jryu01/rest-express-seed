@@ -13,10 +13,7 @@ var UserSchema = new Schema({
  */
 UserSchema.options.toJSON = {
   transform: function (doc, ret, options) {
-
-    // add id feild and remove _id and __v
     ret.id = ret._id;
-
     delete ret._id;
     delete ret.__v;
   }

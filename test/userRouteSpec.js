@@ -1,5 +1,10 @@
 'use strict';
 
+if ( process.env.NODE_ENV !== 'test' ) {
+  console.log('NODE_ENV=' + process.env.NODE_ENV + ' which might cause problems.');
+  process.exit(1);
+}
+
 var mongoose = require('mongoose');
     mongoose.models = {};
     mongoose.modelSchemas = {};
@@ -21,6 +26,14 @@ describe('User route', function () {
     request = request(app);
     mongoose.connect(config.mongo.url);
     done();
+  });
+
+  after(function (done){
+    mongoose.connection.db.dropDatabase(function(){
+        mongoose.connection.close(function(){
+          done();
+        });
+    });
   });
 
   describe('with POST request', function () {
@@ -96,14 +109,6 @@ describe('User route', function () {
           if (err) { done(err); }
           expect(res.body).to.have.property('id', peter.id);
           expect(res.body).to.have.property('name', peter.name);
-          done();
-        });
-    });
-  });
-
-  after(function(done){
-    mongoose.connection.db.dropDatabase(function(){
-        mongoose.connection.close(function(){
           done();
         });
     });
