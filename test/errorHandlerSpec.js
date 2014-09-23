@@ -20,7 +20,7 @@ describe('lib: errorHandler', function () {
     err = {};
     req = {};
     res = { json: sinon.spy(), status: sinon.spy() };
-    next = sinon.spy(); 
+    next = {}; 
   });
 
   it('should be a function', function () {
