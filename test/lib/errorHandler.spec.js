@@ -7,7 +7,7 @@ var sinonChai = require('sinon-chai');
 var expect = chai.expect;
 chai.use(sinonChai);
 
-var errorHandler = require('../lib/errorHandler');
+var errorHandler = require('../../lib/errorHandler');
 
 describe('lib: errorHandler', function () {
 
