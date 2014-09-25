@@ -1,28 +1,67 @@
 'use strict';
+/*jshint expr: true*/
 
+var dbHelper = require('../dbHelper');
 var expect = require('chai').expect;
-var User = require('../../models/user');
+var _ = require('lodash');
 
+var dataFactory = {
+  create: function (overwrites) {
+    var defaults = {
+      name: 'Jhon',
+      email: 'jhon@jhonhome.com'
+    };
+    return _.extend(defaults, overwrites);
+  }
+};
 
-describe('User model', function () {
+describe('User', function () {
 
-  var user;
+  var User, data;
+
+  before(function () {
+    dbHelper.setup();
+    User = require('../../models/user');
+  });
 
   it('should have a name', function () {
-    user = new User({ name: 'Jhon'});
-    expect(user.name).to.equal('Jhon');
+    data = dataFactory.create();
+    User.create(data, function (err, user) {
+      expect(err).to.be.null;
+      expect(user.name).to.equal('Jhon');
+    });
   });
 
   it('should have an email', function () {
-    user = new User({ email: 'example@example.com'});
-    expect(user.email).to.equal('example@example.com');
+    data = dataFactory.create();
+    User.create(data, function (err, user) {
+      expect(err).to.be.null;
+      expect(user.email).to.equal('jhon@jhonhome.com');
+    });
   });
 
-  it('should have .toJSON to get clean json', function () {
-    user = new User({ name: 'Sam' });
-    expect(user.toJSON()).to.have.property('id');
-    expect(user.toJSON()).to.not.have.property('_id');
-    expect(user.toJSON()).to.not.have.property('__V');
+  it('should give an error when name is missing', function() {
+    User.create({}, function (err, user) {
+      expect(user).to.not.be.ok;
+      expect(err).to.match(/name is required!/);
+    });
+  });
+
+  it('should give an error when email is missing', function() {
+    User.create({}, function (err, user) {
+      expect(user).to.not.be.ok;
+      expect(err).to.match(/email is required!/);
+    });
+  });
+
+  it('should have #toJSON to get clean json', function () {
+    data = dataFactory.create();
+    User.create(data, function (err, user) {
+      expect(err).to.be.null; 
+      expect(user.toJSON()).to.have.property('id');
+      expect(user.toJSON()).to.not.have.property('_id');
+      expect(user.toJSON()).to.not.have.property('__V');
+    });
   });
 
 });

@@ -9,11 +9,10 @@ chai.use(sinonChai);
 
 var errorHandler = require('../../lib/errorHandler');
 
-describe('lib: errorHandler', function () {
+describe('errorHandler', function () {
 
   var eHandler = errorHandler();
   var err, req, res, next;
-
 
   beforeEach(function () {
     // test doubles
@@ -27,13 +26,13 @@ describe('lib: errorHandler', function () {
     expect(eHandler).to.be.a('function');
   });
 
-  it('should call res.status with 500', function () {
+  it('should respond with status 500', function () {
     eHandler(err, req, res, next);
     expect(res.status).to.have.been.calledOnce;
     expect(res.status).to.have.been.calledWith(500);
   });
 
-  it('should call res.json with error message', function () {
+  it('should respond with error message', function () {
     err = new Error('Unexpected server error'); 
     eHandler(err, req, res, next);
     expect(res.json).to.have.been.calledOnce;
@@ -61,18 +60,18 @@ describe('lib: errorHandler', function () {
 
     });
 
-    it('should call res.status with 400', function () {
+    it('should respond with status 400', function () {
       eHandler(err, req, res, next);
       expect(res.status).to.have.been.calledWith(400);
     });
 
-    it('should call res.json with a error message', function () {
+    it('should respond with a error message', function () {
       eHandler(err, req, res, next);
       expect(res.json).to.have.been.calledWith({ message: 'name is required!'});
     });  
 
-    it('should call res.json with a message containing multiple ' +
-      'error messages seperated by comma', function () {
+    it('should respond with a message containing error messages' +
+      ' seperated by comma when there are multiple errors', function () {
       err.errors.email = {
         message: 'email is required!',
         name: 'ValidatorError',

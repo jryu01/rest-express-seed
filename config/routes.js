@@ -1,11 +1,11 @@
 'use strict';
 
-var express = require('express');
-var router = express.Router();
-var controllers = require('../controllers');
+var userController = require('../controllers/userController');
 
-router.get('/users', controllers.users.list);
-router.get('/users/:id', controllers.users.get);
-router.post('/users/', controllers.users.create);
+module.exports = function (app) {
 
-module.exports = router;
+  app.post('/api/users/', userController.post);
+  app.get('/api/users', userController.list);
+  app.get('/api/users/:id', userController.get);
+  
+};

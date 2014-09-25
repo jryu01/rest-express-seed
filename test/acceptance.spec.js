@@ -1,45 +1,40 @@
 'use strict';
+/*jshint expr: true*/
 
-if ( process.env.NODE_ENV !== 'test' ) {
-  console.log('NODE_ENV=' + process.env.NODE_ENV + ' which might cause problems.');
-  process.exit(1);
-}
-
-var mongoose = require('mongoose');
-    mongoose.models = {};
-    mongoose.modelSchemas = {};
+var dbHelper = require('./dbHelper');
 var request = require('supertest');
 var expect = require('chai').expect;
-var config = require('../config');
-var app = require('../app');
 var _ = require('lodash');
 
-var createUser = function (overwrites) {
-  var defaults= { name: 'Jhon', email: 'example@example.com' };
-
-  return _.extend(defaults, overwrites);
+var dataFactory = { 
+  create: function (overwrites) {
+    var defaults = { name: 'Jhon', email: 'example@example.com' };
+    return _.extend(defaults, overwrites);
+  }
 };
 
-describe('User route', function () {
+describe('Managing user resource', function () {
 
-  before(function (done) {
-    request = request(app);
-    mongoose.connect(config.mongo.url);
-    done();
+  var User, data;
+
+  before(function () {
+    request = request(require('../app'));
+    User = require('../models/user');
+    dbHelper.setup();
   });
 
-  after(function (done){
-    mongoose.connection.db.dropDatabase(function(){
-        mongoose.connection.close(function(){
-          done();
-        });
-    });
+  beforeEach(function (done) {
+    User.remove({}, done);
   });
 
   describe('with POST request', function () {
 
+    beforeEach(function () {
+      data = dataFactory.create();
+    });
+
     it('should save a user to db and return it', function (done) {
-      request.post('/api/users').send(createUser())
+      request.post('/api/users').send(data)
       .expect('Content-Type', /json/)
       .expect(200)
       .end(function (err, res) {
@@ -47,25 +42,30 @@ describe('User route', function () {
         expect(res.body).to.have.property('id');
         expect(res.body).to.have.property('name', 'Jhon');
         expect(res.body).to.have.property('email', 'example@example.com');
-        done();
+
+        User.find({}, function (err, users) {
+          expect(users).to.be.an('array');
+          expect(users[0]).to.have.property('id');
+          expect(res.body).to.have.property('name', 'Jhon');
+          expect(res.body).to.have.property('email', 'example@example.com');
+          done();
+        });
       });
     });
 
     it('should respond with 400 error when name is missing', function (done) {
-      var user = createUser();
-      delete user.name;
-      request.post('/api/users').send(user)
+      delete data.name;
+      request.post('/api/users').send(data)
       .expect('Content-Type', /json/)
       .expect(400)
       .expect(/name is required!/, done);
     });
 
-    it('should respond with 400 error when email is missing', function (done) {
-      var user = createUser();
-      delete user.email;
-      request.post('/api/users').send(user)
+    it('should respond with 400 error when both name and email is missing', function (done) {
+      request.post('/api/users').send({})
       .expect('Content-Type', /json/)
       .expect(400)
+      .expect(/name is required!/)
       .expect(/email is required!/, done);
     });
 
@@ -73,18 +73,19 @@ describe('User route', function () {
 
   describe('with GET reqeust', function () {
 
-    var peter, bob;
-
-    before(function (done) {
-      request.post('/api/users').send(createUser({ name: 'Peter' }))
-        .expect(200, function (err, res) {
-        peter = res.body;
-        request.post('/api/users').send(createUser({ name: 'Bob' }))
-          .expect(200, function (err, res) {
-          bob = res.body;
-          request.post('/api/users').send(createUser({ name: 'Sandy' })).expect(200, done);
-        });
-      });
+    beforeEach(function (done) {
+      var num = 3;
+      var names = ['Peter', 'Bob', 'Sandy'];
+      var createCallback = function (i) {
+        return function (err, user) {
+          if (err) { done(err); }
+          if (i === num) { done(); }
+        };
+      };
+      for (var i = 0; i < num; i++) {
+        data = dataFactory.create({ name: names[i]});
+        User.create(data, createCallback(i+1)); 
+      }
     });
 
     it('should retreive array of users', function (done) {
@@ -93,7 +94,7 @@ describe('User route', function () {
         .expect(200)
         .end(function (err, res) {
           if (err) { done(err); }
-          expect(res.body).to.be.an('array').that.has.length.above(2);
+          expect(res.body).to.be.an('array').that.has.length(3);
           expect(JSON.stringify(res.body)).to.match(/Peter/);
           expect(JSON.stringify(res.body)).to.match(/Bob/);
           expect(JSON.stringify(res.body)).to.match(/Sandy/);
@@ -102,15 +103,17 @@ describe('User route', function () {
     });
 
     it('should retreive a specific user with id', function (done) {
-      request.get('/api/users/' + peter.id)
-        .expect('Content-Type', /json/)
-        .expect(200)
-        .end(function (err, res) {
-          if (err) { done(err); }
-          expect(res.body).to.have.property('id', peter.id);
-          expect(res.body).to.have.property('name', peter.name);
-          done();
-        });
+      User.findOne(function (err, user) {
+        request.get('/api/users/' + user.id)
+          .expect('Content-Type', /json/)
+          .expect(200)
+          .end(function (err, res) {
+            if (err) { done(err); }
+            expect(res.body).to.have.property('id', user.id);
+            expect(res.body).to.have.property('name', user.name);
+            done();
+          });
+      });
     });
   });
 });
