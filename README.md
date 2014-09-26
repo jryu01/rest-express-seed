@@ -30,3 +30,6 @@ REST API seed project with node.js and express.js with BDD/TDD approach
     .gitignore          --> gitignore file
     .jshintrc           --> jshint configuration file
     Makefile            --> for running tests
+    
+## License
+MIT
