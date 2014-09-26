@@ -3,6 +3,18 @@ rest-express-seed
 
 REST API seed project with node.js and express.js with BDD/TDD approach
 
+## How to use rest-express-seed
+
+Clone the rest-express-seed repository, run `npm install` to install dependancies.
+
+### Running the app
+
+    npm start
+
+### Running tests
+
+    npm test
+
 ## Directory Layout
     
     app.js              --> express app
