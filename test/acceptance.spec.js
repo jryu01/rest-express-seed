@@ -1,7 +1,7 @@
 'use strict';
 /*jshint expr: true*/
 
-var dbHelper = require('./dbHelper');
+var mockDB = require('./mockDB');
 var request = require('supertest');
 var expect = require('chai').expect;
 var _ = require('lodash');
@@ -15,16 +15,12 @@ var dataFactory = {
 
 describe('Managing user resource', function () {
 
-  var User, data;
+  var app, User, data;
 
-  before(function () {
-    request = request(require('../app'));
+  beforeEach(function () {
+    mockDB.init();
+    app = require('../app');
     User = require('../models/user');
-    dbHelper.setup();
-  });
-
-  beforeEach(function (done) {
-    User.remove({}, done);
   });
 
   describe('with POST request', function () {
@@ -34,7 +30,7 @@ describe('Managing user resource', function () {
     });
 
     it('should save a user to db and return it', function (done) {
-      request.post('/api/users').send(data)
+      request(app).post('/api/users').send(data)
       .expect('Content-Type', /json/)
       .expect(200)
       .end(function (err, res) {
@@ -55,14 +51,14 @@ describe('Managing user resource', function () {
 
     it('should respond with 400 error when name is missing', function (done) {
       delete data.name;
-      request.post('/api/users').send(data)
+      request(app).post('/api/users').send(data)
       .expect('Content-Type', /json/)
       .expect(400)
       .expect(/name is required!/, done);
     });
 
     it('should respond with 400 error when both name and email is missing', function (done) {
-      request.post('/api/users').send({})
+      request(app).post('/api/users').send({})
       .expect('Content-Type', /json/)
       .expect(400)
       .expect(/name is required!/)
@@ -89,7 +85,7 @@ describe('Managing user resource', function () {
     });
 
     it('should retreive array of users', function (done) {
-      request.get('/api/users')
+      request(app).get('/api/users')
         .expect('Content-Type', /json/)
         .expect(200)
         .end(function (err, res) {
@@ -104,7 +100,7 @@ describe('Managing user resource', function () {
 
     it('should retreive a specific user with id', function (done) {
       User.findOne(function (err, user) {
-        request.get('/api/users/' + user.id)
+        request(app).get('/api/users/' + user.id)
           .expect('Content-Type', /json/)
           .expect(200)
           .end(function (err, res) {

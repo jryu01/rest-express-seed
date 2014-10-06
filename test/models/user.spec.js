@@ -1,7 +1,7 @@
 'use strict';
 /*jshint expr: true*/
 
-var dbHelper = require('../dbHelper');
+var mockDB = require('../mockDB');
 var expect = require('chai').expect;
 var _ = require('lodash');
 
@@ -19,8 +19,8 @@ describe('User', function () {
 
   var User, data;
 
-  before(function () {
-    dbHelper.setup();
+  beforeEach(function () {
+    mockDB.init();
     User = require('../../models/user');
   });
 

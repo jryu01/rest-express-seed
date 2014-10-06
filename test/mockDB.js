@@ -9,7 +9,7 @@ var config = require('../config');
 
 module.exports = {
   mongoose: mongoose,
-  setup: function () {
+  init: function () {
     if(!mongoose.connection.readyState) {
       mongoose.connect(config.mongo.url);
     }
