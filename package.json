@@ -37,7 +37,6 @@
     "jshint": "^2.5.5",
     "lodash": "^2.4.1",
     "mocha": "^1.21.4",
-    "mockgoose": "^1.10.7",
     "sinon": "^1.10.3",
     "sinon-chai": "^2.5.0",
     "supertest": "^0.13.0"

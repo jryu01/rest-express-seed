@@ -1,7 +1,8 @@
 'use strict';
 /*jshint expr: true*/
 
-var mockDB = require('./mockDB');
+require('./dbSetup');
+
 var request = require('supertest');
 var expect = require('chai').expect;
 var _ = require('lodash');
@@ -18,7 +19,6 @@ describe('Managing user resource', function () {
   var app, User, data;
 
   beforeEach(function () {
-    mockDB.init();
     app = require('../app');
     User = require('../models/user');
   });
